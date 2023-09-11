@@ -1,4 +1,18 @@
+# Tobias Hernandez Perez, 5CN
+
 class BritishWeight:
+    """
+    Stores Pounds and Stones
+
+    >>> brit = BritishWeight(24, 1)
+    >>> print(brit)
+    38lb = 2st 10lb
+    >>> print(brit + 10)
+    48lb = 3st 6lb
+    >>> print(10 + brit)
+    48lb = 3st 6lb
+    """
+
     _pounds: int = 0
 
     def __init__(self, pounds=0, stones=0):
@@ -23,6 +37,8 @@ class BritishWeight:
         if isinstance(other, BritishWeight):
             return BritishWeight(self._pounds + other._pounds)
 
+        return NotImplemented
+
     def __radd__(self, other):
         """
         implements right add
@@ -38,8 +54,3 @@ class BritishWeight:
         """
         return str(self._pounds) + "lb = " + str(self._pounds//14) + "st " + str(self._pounds%14) + "lb"
 
-
-brit = BritishWeight(24, 1)
-print(brit)
-print(brit + 10)
-print(10 + brit)
