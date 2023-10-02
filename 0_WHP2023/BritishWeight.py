@@ -11,6 +11,9 @@ class BritishWeight:
     48lb = 3st 6lb
     >>> print(10 + brit)
     48lb = 3st 6lb
+    >>> b2 = BritishWeight(10 + brit._pounds)
+    >>> print(brit + b2)
+    86lb = 6st 2lb
     """
 
     _pounds: int = 0
