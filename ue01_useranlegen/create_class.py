@@ -1,3 +1,9 @@
+import logging
+import argparse
+
+from openpyxl import load_workbook
+
+
 '''
     - ein Bash-Script2 mit allen notwendigen Schritten/Befehlen zum Erzeugen der Benutzer3
     – ein Bash-Script zum Löschen der angelegten Benutzer
@@ -11,11 +17,6 @@
         ∗ bei echten Usernamen: Korrektur des Namens (Umlaute), doppelte Namen, etc. ∗ Ordnernamen
     – Ausgabe
 '''
-
-import logging
-import argparse
-
-from openpyxl import load_workbook
 
 
 def read_excel(file_path: str):
@@ -41,7 +42,12 @@ def read_excel(file_path: str):
 
 
 def write_script(data, filename: str):
-    # home_directory, username, main_group, groups = data
+    """
+    Writes data consisting of user entries in a given file
+    :param data: generator object (home_directory, username, main_group, groups)
+    :param filename: file to be written
+    :return: bash script for user creation
+    """
     with open(filename, "w") as script:
         for entry in data:
             home_directory, username, main_group, groups = entry
@@ -58,10 +64,20 @@ def write_script(data, filename: str):
 
 
 def create_class_users_script(filename: str):
+    """
+    writes generated users to a script file
+    :param filename: script file
+    :return:
+    """
     write_script(create_class_users(filename), "user_script.sh")
 
 
 def create_class_users(filename: str):
+    """
+    generates user data from a given excel file
+    :param filename: excel file
+    :return: yield (home_directory, class_name, class_name, groups)
+    """
     home_directory = "/home/klassen"
     groups = "cdrom,plugdev,sambashare"
 
