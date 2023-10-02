@@ -4,6 +4,15 @@
     – eine Liste mit Usernamen und Passwörtern zum Verteilen an die unterrichtenden Lehrer
     – ein Logfile mit sinnvollen Angaben
 '''
+import argparse
+
+'''
+    – Einlesen (in Liste/Generator oder ähnliches)
+    – Aufbereiten/Nachbessern:
+        ∗ PW erzeugen11
+        ∗ bei echten Usernamen: Korrektur des Namens (Umlaute), doppelte Namen, etc. ∗ Ordnernamen
+    – Ausgabe
+'''
 
 from openpyxl import load_workbook
 
@@ -12,7 +21,7 @@ def read_excel(file_path: str):
     """
     Reads an Excel-File and yields the output per line
     :param file_path: Excel file
-    :return:
+    :return: tuple of class, classroom, teacher
     """
     workbook = load_workbook(file_path, read_only=True)
     worksheet = workbook[workbook.sheetnames[0]]
@@ -26,6 +35,24 @@ def read_excel(file_path: str):
             yield class_name, class_room, class_teacher
 
 
-if __name__ == '__main__':
-    for row in read_excel("Klassenraeume_2023.xlsx"):
+def make_parser():
+    """
+    The necessary commands to make the command line tools usable
+    :return:
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename")
+
+    args = parser.parse_args()
+
+    if args.filename:
+        test_read(args.filename)
+
+
+def test_read(filename):
+    for row in read_excel(filename):
         print(row)
+
+
+if __name__ == '__main__':
+    make_parser()
