@@ -18,6 +18,8 @@ from openpyxl import load_workbook
     – Ausgabe
 '''
 
+class_user_file = ""
+
 
 def read_excel(file_path: str):
     """
@@ -41,7 +43,7 @@ def read_excel(file_path: str):
             yield class_name, class_room, class_teacher
 
 
-def write_script(data, filename: str):
+def write_class_script(filename: str):
     """
     Writes data consisting of user entries in a given file
     :param data: generator object (home_directory, username, main_group, groups)
@@ -52,7 +54,7 @@ def write_script(data, filename: str):
     groups = "cdrom,plugdev,sambashare"
 
     with open(filename, "w") as script:
-        for entry in data:
+        for entry in create_class_users(class_user_file):
             home_directory, username, main_group = entry
             script.write("useradd "
                          " -d " + home_directory +
@@ -77,13 +79,12 @@ def write_script(data, filename: str):
                          )
 
 
-def create_class_users_script(filename: str):
-    """
-    writes generated users to a script file
-    :param filename: script file
-    :return:
-    """
-    write_script(create_class_users(filename), "user_script.sh")
+# def create_class_users_script(filename: str):
+#     """
+#     writes generated users to a script file
+#     :param filename: script file
+#     :return:
+#     """
 
 
 def create_class_users(filename: str):
@@ -119,7 +120,7 @@ def parse_args():
     args = parser.parse_args()
 
     if args.filename:
-        create_class_users_script(args.filename)
+        class_user_file = args.filename
 
     # todo revisit
     if args.verbosity:
@@ -131,3 +132,5 @@ def parse_args():
 
 if __name__ == '__main__':
     parse_args()
+    write_class_script("user_script.sh")
+
