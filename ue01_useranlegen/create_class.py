@@ -1,5 +1,6 @@
 import logging
 import argparse
+import random
 
 from openpyxl import load_workbook
 
@@ -17,8 +18,6 @@ from openpyxl import load_workbook
         ∗ bei echten Usernamen: Korrektur des Namens (Umlaute), doppelte Namen, etc. ∗ Ordnernamen
     – Ausgabe
 '''
-
-class_user_file = ""
 
 
 def read_excel(file_path: str):
@@ -43,7 +42,7 @@ def read_excel(file_path: str):
             yield class_name, class_room, class_teacher
 
 
-def write_class_script(filename: str):
+def write_class_script(data, filename: str):
     """
     Writes data consisting of user entries in a given file
     :param data: generator object (home_directory, username, main_group, groups)
@@ -53,9 +52,9 @@ def write_class_script(filename: str):
 
     groups = "cdrom,plugdev,sambashare"
 
-    with open(filename, "w") as script:
-        for entry in create_class_users(class_user_file):
-            home_directory, username, main_group = entry
+    with open(filename, "w") as script, open("passwords.txt", "w") as passwords:
+        for entry in data:
+            home_directory, username, main_group, password = entry
             script.write("useradd "
                          " -d " + home_directory +
                          " -c " + username +
@@ -65,6 +64,8 @@ def write_class_script(filename: str):
                          " -s /bin/bash " + username +
                          "\n"
                          )
+            script.write("echo " + username + ":" + password + " | chpasswd\n\n")
+            passwords.write("Klasse:   " + username + "\nPasswort: " + password.replace("\\", "") + "\n\n")
 
         for additional in create_additional_users():
             home_directory, username, main_group = additional
@@ -79,14 +80,6 @@ def write_class_script(filename: str):
                          )
 
 
-# def create_class_users_script(filename: str):
-#     """
-#     writes generated users to a script file
-#     :param filename: script file
-#     :return:
-#     """
-
-
 def create_class_users(filename: str):
     """
     generates user data from a given excel file
@@ -99,12 +92,37 @@ def create_class_users(filename: str):
     excel.__next__()
     for row in excel:
         class_name = "k" + row[0].lower()
-        yield home_directory + "/" + class_name, class_name, class_name
+        yield (home_directory + "/" + class_name, class_name, class_name
+               , generate_password(class_name, str(row[1]), str(row[2])))
 
 
 def create_additional_users():
     yield "/home/lehrer", "lehrer", "lehrer"
     yield "/home/lehrer", "seminar", "seminar"
+
+
+def generate_password(name, room, teacher):
+    """
+    Das Passwort besteht aus KZRZJZ
+        ∗ K(lasse)
+        ∗ Z(ufall): ein zufälliges Zeichen aus !%&(),._-=^#5
+        ∗ R(aum), ohne dem B für Beamer
+        ∗ J(ahrgangsvorstand)
+    :return:
+    """
+    rand_chars = ["!", "%", "&", "(", ")", ",", ".", "_", "-", "=", "^", "#"]
+
+    return (name +
+            "\\" + random.choice(rand_chars)
+            + room
+            + "\\" + random.choice(rand_chars)
+            + teacher
+            + "\\" + random.choice(rand_chars)
+            )
+
+
+def create_password_file():
+    pass
 
 
 def parse_args():
@@ -120,7 +138,7 @@ def parse_args():
     args = parser.parse_args()
 
     if args.filename:
-        class_user_file = args.filename
+        write_class_script(create_class_users(args.filename), "user_script.sh")
 
     # todo revisit
     if args.verbosity:
@@ -132,5 +150,7 @@ def parse_args():
 
 if __name__ == '__main__':
     parse_args()
-    write_class_script("user_script.sh")
 
+
+# TODO: – bei bereits existierenden Benutzern sollte eine Fehlermeldung erfolgen????????????
+# TODO: – die Bash-Scripts sollten bei Problemen abbrechen
