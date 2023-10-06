@@ -48,10 +48,24 @@ def write_script(data, filename: str):
     :param filename: file to be written
     :return: bash script for user creation
     """
+
+    groups = "cdrom,plugdev,sambashare"
+
     with open(filename, "w") as script:
         for entry in data:
-            home_directory, username, main_group, groups = entry
-            print(entry)
+            home_directory, username, main_group = entry
+            script.write("useradd "
+                         " -d " + home_directory +
+                         " -c " + username +
+                         " -m " +
+                         " -g " + main_group +
+                         " -G " + groups +
+                         " -s /bin/bash " + username +
+                         "\n"
+                         )
+
+        for additional in create_additional_users():
+            home_directory, username, main_group = additional
             script.write("useradd "
                          " -d " + home_directory +
                          " -c " + username +
@@ -79,13 +93,17 @@ def create_class_users(filename: str):
     :return: yield (home_directory, class_name, class_name, groups)
     """
     home_directory = "/home/klassen"
-    groups = "cdrom,plugdev,sambashare"
 
     excel = read_excel(filename)
     excel.__next__()
     for row in excel:
-        class_name = row[0].lower()
-        yield home_directory, class_name, class_name, groups
+        class_name = "k" + row[0].lower()
+        yield home_directory + "/" + class_name, class_name, class_name
+
+
+def create_additional_users():
+    yield "/home/lehrer", "lehrer", "lehrer"
+    yield "/home/lehrer", "seminar", "seminar"
 
 
 def parse_args():
