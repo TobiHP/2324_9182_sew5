@@ -87,13 +87,18 @@ def create_class_users(filename: str):
     :return: yield (home_directory, class_name, class_name, groups)
     """
     home_directory = "/home/klassen"
+    class_names = []
 
     excel = read_excel(filename)
     excel.__next__()
     for row in excel:
         class_name = "k" + row[0].lower()
-        yield (home_directory + "/" + class_name, class_name, class_name
-               , generate_password(class_name, str(row[1]), str(row[2])))
+        if class_name in class_names:
+            raise Exception("user '" + class_name + "' already exists!")
+        else:
+            class_names.append(class_name)
+            yield (home_directory + "/" + class_name, class_name, class_name
+                   , generate_password(class_name, str(row[1]), str(row[2])))
 
 
 def create_additional_users():
