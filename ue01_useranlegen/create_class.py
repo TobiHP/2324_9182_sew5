@@ -1,9 +1,12 @@
 import logging
 import argparse
 import random
+import sys
+from logging.handlers import RotatingFileHandler
 
 from openpyxl import load_workbook
 
+logger = logging.getLogger("create_user_logger")
 
 '''
     - ein Bash-Script2 mit allen notwendigen Schritten/Befehlen zum Erzeugen der Benutzer3
@@ -27,9 +30,14 @@ def read_excel(file_path: str):
     :return: tuple of class, classroom, teacher
     """
 
-    logging.debug("reading from:" + file_path)
+    logger.debug(f"reading from: {file_path}")
 
-    workbook = load_workbook(file_path, read_only=True)
+    try:
+        workbook = load_workbook(file_path, read_only=True)
+    except Exception:
+        logger.error("Error: File " + file_path + " not Found!")
+        raise Exception("File \"" + file_path + "\" not Found!")
+
     worksheet = workbook[workbook.sheetnames[0]]
 
     for row in worksheet.iter_rows(min_row=1):
@@ -38,7 +46,7 @@ def read_excel(file_path: str):
         class_teacher = row[2].value
 
         if class_name is not None and class_room is not None and class_teacher is not None:
-            logging.debug(class_name, class_room, class_teacher)
+            logger.debug(f"yielding: {class_name} {class_room} {class_teacher}")
             yield class_name, class_room, class_teacher
 
 
@@ -64,6 +72,8 @@ def write_class_script(data, filename: str):
                          " -s /bin/bash " + username +
                          "\n"
                          )
+            logger.debug(f"writing to script: \"Klasse:  {username}, Passwort: {password}")
+
             script.write("echo " + username + ":" + password + " | chpasswd\n\n")
             passwords.write("Klasse:   " + username + "\nPasswort: " + password.replace("\\", "") + "\n\n")
 
@@ -78,6 +88,7 @@ def write_class_script(data, filename: str):
                          " -s /bin/bash " + username +
                          "\n"
                          )
+            logger.debug("writing additional users")
 
 
 def create_class_users(filename: str):
@@ -86,7 +97,9 @@ def create_class_users(filename: str):
     :param filename: excel file
     :return: yield (home_directory, class_name, class_name, groups)
     """
-    home_directory = "/home/klassen"
+    logger.debug(f"generating class users from: {filename}")
+
+    home_directory = "/home/klassen/"
     class_names = []
 
     excel = read_excel(filename)
@@ -94,10 +107,12 @@ def create_class_users(filename: str):
     for row in excel:
         class_name = "k" + row[0].lower()
         if class_name in class_names:
+            logger.error("user '" + class_name + "' already exists!")
             raise Exception("user '" + class_name + "' already exists!")
         else:
             class_names.append(class_name)
-            yield (home_directory + "/" + class_name, class_name, class_name
+            logger.debug(f"yielding class user: {class_name}")
+            yield (home_directory + class_name, class_name, class_name
                    , generate_password(class_name, str(row[1]), str(row[2])))
 
 
@@ -115,6 +130,8 @@ def generate_password(name, room, teacher):
         ∗ J(ahrgangsvorstand)
     :return:
     """
+    logger.debug(f"generating password for: {name} {room} {teacher}")
+
     rand_chars = ["!", "%", "&", "(", ")", ",", ".", "_", "-", "=", "^", "#"]
 
     return (name +
@@ -126,8 +143,8 @@ def generate_password(name, room, teacher):
             )
 
 
-def create_password_file():
-    pass
+# def create_password_file():
+#     pass
 
 
 def parse_args():
@@ -135,6 +152,8 @@ def parse_args():
     The necessary commands to make the command line tools usable
     :return:
     """
+    create_logger()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument('-v', "--verbosity", help="increase output verbosity", action="store_true")
@@ -142,20 +161,25 @@ def parse_args():
 
     args = parser.parse_args()
 
+    if args.verbosity:
+        print("verbosity turned on")
+        logger.setLevel(logging.DEBUG)
+    elif args.quiet:
+        logger.setLevel(logging.NOTSET)
+
     if args.filename:
         write_class_script(create_class_users(args.filename), "user_script.sh")
 
-    # todo revisit
-    if args.verbosity:
-        print("verbosity turned on")
-        logging.basicConfig(level=5)
-    elif args.quiet:
-        logging.basicConfig(level=0)
+
+def create_logger():
+    rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
+    stream_handler = logging.StreamHandler(sys.stdout)
+    logger.addHandler(rot_file_handler)
+    logger.addHandler(stream_handler)
 
 
 if __name__ == '__main__':
     parse_args()
-
 
 # TODO: – bei bereits existierenden Benutzern sollte eine Fehlermeldung erfolgen????????????
 # TODO: – die Bash-Scripts sollten bei Problemen abbrechen
