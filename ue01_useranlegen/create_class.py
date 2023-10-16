@@ -40,7 +40,7 @@ def read_excel(file_path: str):
 
     worksheet = workbook[workbook.sheetnames[0]]
 
-    for row in worksheet.iter_rows(min_row=1):
+    for row in worksheet.iter_rows(min_row=3):
         class_name = row[0].value
         class_room = row[1].value
         class_teacher = row[2].value

@@ -11,6 +11,8 @@ Als Login-Name wird der Familienname verwendet:
 """
 import logging
 import random
+import unicodedata
+import re
 
 from openpyxl.reader.excel import load_workbook
 
@@ -51,20 +53,30 @@ def create_users(filename: str):
     logger.debug(f"generating users from: {filename}")
 
     last_names = []
+    special_char_map = {ord('ä'): 'ae', ord('ü'): 'ue', ord('ö'): 'oe', ord('ß'): 'ss',
+                        ord('Ä'): 'Ae', ord('Ü'): 'Ue', ord('Ö'): 'Oe'}
+    print(special_char_map)
 
     excel = read_excel(filename)
     excel.__next__()
     for row in excel:
-        first_name = row[0]
-        last_name = row[1]
+        first_name = shave_marks(row[0]).replace(" ", "_").translate(special_char_map)
+        last_name = shave_marks(row[1]).replace(" ", "_").translate(special_char_map)
         group_name = row[2].lower()
         class_name = row[3].lower() if row[3] else None
         user_name = first_name + last_name
 
+        # print(user_name)
+
+        name_pattern = "^[A-Za-z][A-Za-z0-9._-]+$"
+        if not re.search(name_pattern, first_name) or not re.search(name_pattern, last_name):
+            # print(first_name, last_name)
+            continue
+
         if last_name in last_names:
             logger.debug("lastname '" + last_name + "' already exists -> appending number")
             last_names.append(last_name)
-            last_name = last_name + str(last_names.count(last_name)-1)
+            last_name = last_name + str(last_names.count(last_name) - 1)
         else:
             last_names.append(last_name)
 
@@ -80,9 +92,20 @@ def create_users(filename: str):
                group_name,
                class_name,
                user_name,
-               generate_password(first_name, str(row[1]), str(row[2])))
+               generate_password(first_name, last_name, str(class_name)))
+
+
+def shave_marks(txt):
+    """
+    Remove all diacritic marks
+    """
+    norm_txt = unicodedata.normalize('NFD', txt)
+    shaved = ''.join(c for c in norm_txt
+                     if not unicodedata.combining(c))
+    return unicodedata.normalize('NFC', shaved)
 
 
 if __name__ == '__main__':
     for user in create_users("Namen.xlsx"):
-        print(user)
+        pass
+        # print(user)
