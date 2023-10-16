@@ -172,7 +172,7 @@ def parse_args():
 
 
 def create_logger():
-    rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
+    rot_file_handler = RotatingFileHandler('create_class.log', maxBytes=10_000, backupCount=5)
     stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(rot_file_handler)
     logger.addHandler(stream_handler)
