@@ -15,6 +15,7 @@ import unicodedata
 import re
 
 from openpyxl.reader.excel import load_workbook
+from create_class import generate_password
 
 logger = logging.getLogger("create_user_logger")
 
@@ -55,23 +56,23 @@ def create_users(filename: str):
     last_names = []
     special_char_map = {ord('ä'): 'ae', ord('ü'): 'ue', ord('ö'): 'oe', ord('ß'): 'ss',
                         ord('Ä'): 'Ae', ord('Ü'): 'Ue', ord('Ö'): 'Oe'}
-    print(special_char_map)
+    # print(special_char_map)
 
     excel = read_excel(filename)
     excel.__next__()
     for row in excel:
-        first_name = shave_marks(row[0]).replace(" ", "_").translate(special_char_map)
-        last_name = shave_marks(row[1]).replace(" ", "_").translate(special_char_map)
+        first_name = shave_marks(row[0].replace(" ", "_").translate(special_char_map))
+        last_name = shave_marks(row[1].replace(" ", "_").translate(special_char_map))
         group_name = row[2].lower()
         class_name = row[3].lower() if row[3] else None
         user_name = first_name + last_name
-
-        # print(user_name)
 
         name_pattern = "^[A-Za-z][A-Za-z0-9._-]+$"
         if not re.search(name_pattern, first_name) or not re.search(name_pattern, last_name):
             # print(first_name, last_name)
             continue
+
+        print(user_name)
 
         if last_name in last_names:
             logger.debug("lastname '" + last_name + "' already exists -> appending number")
@@ -82,7 +83,6 @@ def create_users(filename: str):
 
         logger.debug(f"yielding class user: {first_name}")
 
-        from create_class import generate_password
         if class_name:
             home_directory = f"/home/klassen/{class_name}/{last_name}/"
         else:
