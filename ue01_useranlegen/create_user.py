@@ -16,6 +16,7 @@ import unicodedata
 import re
 from logging.handlers import RotatingFileHandler
 
+import openpyxl
 from openpyxl.reader.excel import load_workbook
 from create_class import generate_password
 
@@ -133,14 +134,35 @@ def shave_marks(txt):
     return unicodedata.normalize('NFC', shaved)
 
 
+def write_excel(filename, data):
+    wb = openpyxl.Workbook()
+    counter = 1
+
+    ws = wb.active
+    ws.title = "Users"
+    ws['A1'] = "Name"
+    ws['B1'] = "Password"
+    for user in data:
+        counter += 1
+        home_directory, first_name, main_group, groups, username, password = user
+        # print(user)
+        ws[f'A{counter}'].value = username
+        ws[f'B{counter}'].value = password.replace('\\', '')
+
+    wb.save(filename)
+
+
 if __name__ == '__main__':
+    # TODO TESTS
     logger.setLevel(logging.DEBUG)
     rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
     stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(rot_file_handler)
-    logger.addHandler(stream_handler)
+    # logger.addHandler(stream_handler)
 
-    for user in create_users("Namen.xlsx"):
-        print(user)
-        pass
-        # print(user)
+    write_excel("users.xlsx", create_users("Namen.xlsx"))
+
+    # for user in create_users("Namen.xlsx"):
+    #     print(user)
+    #     pass
+    #     print(user)
