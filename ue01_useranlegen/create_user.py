@@ -148,20 +148,45 @@ def write_excel(filename, data):
     for user in data:
         counter += 1
         home_directory, first_name, last_name, class_name, main_group, groups, username, password = user
-        # print(user)
         ws[f'A{counter}'].value = first_name
         ws[f'B{counter}'].value = last_name
         ws[f'C{counter}'].value = class_name
         ws[f'D{counter}'].value = username
         ws[f'E{counter}'].value = password.replace('\\', '')
 
-        fill = PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
+        style_row(counter, ws)
 
-        if counter % 2 == 0:
-            for cell in ws[counter]:
-                cell.fill = fill
+    autofit_columns(ws)
 
     wb.save(filename)
+
+
+def style_row(counter, ws):
+    fill = PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
+    thin_border = Border(
+        top=Side(style='thin'),
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    for cell in ws[counter]:
+        if counter % 2 == 0:
+            cell.fill = fill
+        cell.border = thin_border
+
+
+def autofit_columns(ws):
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws.column_dimensions[column_letter].width = adjusted_width
 
 
 def format_excel(ws):
@@ -187,9 +212,13 @@ def format_excel(ws):
     e1.value = "Password"
     e1.font = Font(bold=True)
 
-    thick_border = Border(bottom=Side(style='medium'))
+    medium_border = Border(
+        left=Side(style='medium'),
+        right=Side(style='medium'),
+        bottom=Side(style='medium')
+    )
     for cell in ws[1]:
-        cell.border = thick_border
+        cell.border = medium_border
 
 
 if __name__ == '__main__':
