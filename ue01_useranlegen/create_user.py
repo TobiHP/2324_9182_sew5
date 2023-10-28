@@ -248,6 +248,32 @@ def create_titles(ws):
         cell.border = medium_border
 
 
+def write_user_script(filename: str, data):
+    """
+    Writes data consisting of user entries in a given file
+    :param data: generator object (home_directory, username, main_group, groups)
+    :param filename: file to be written
+    :return: bash script for user creation
+    """
+
+    with open(filename, "w") as script:
+        for user in data:
+            home_directory, first_name, last_name, class_name, main_group, groups, username, password = user
+            script.write("useradd "
+                         f" -d {home_directory}" +
+                         f" -c \"{first_name} {last_name}\"" +
+                         " -m " +
+                         f" -g {main_group}" +
+                         f" -G cdrom,plugdev,sambashare,{groups}" +
+                         " -s /bin/bash " +
+                         username +
+                         "\n"
+                         )
+            logger.debug(f"writing to script: \"Klasse:  {username}, Passwort: {password}")
+
+            script.write(f"echo {username}:\"{password}\" | chpasswd\n\n")
+
+
 if __name__ == '__main__':
     # TODO TESTS
     # TODO parse args
@@ -259,6 +285,7 @@ if __name__ == '__main__':
     # logger.addHandler(stream_handler) # todo uncomment this
 
     write_excel("users.xlsx", create_users("Namen.xlsx"))
+    write_user_script("new_user_script.sh", create_users("Namen.xlsx"))
     print("done")
 
     # for user in create_users("Namen.xlsx"):
