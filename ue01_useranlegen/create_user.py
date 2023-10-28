@@ -140,11 +140,17 @@ def shave_marks(txt):
 
 
 def write_excel(filename, data):
+    """
+    Write User Data to an Excel File
+    :param filename: Excel file to write to
+    :param data: User Data
+    :return:
+    """
     wb = openpyxl.Workbook()
     counter = 1
 
     ws = wb.active
-    format_excel(ws)
+    create_titles(ws)
     for user in data:
         counter += 1
         home_directory, first_name, last_name, class_name, main_group, groups, username, password = user
@@ -162,6 +168,14 @@ def write_excel(filename, data):
 
 
 def style_row(counter, ws):
+    """
+    applies styles to a single row of cells
+        - an alternating background color
+        - a thin border on all sides
+    :param counter: counter used for alternation
+    :param ws: Worksheet
+    :return:
+    """
     fill = PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
     thin_border = Border(
         top=Side(style='thin'),
@@ -176,6 +190,11 @@ def style_row(counter, ws):
 
 
 def autofit_columns(ws):
+    """
+    automatically adjusts the column widths to fit the contents
+    :param ws: Worksheet
+    :return:
+    """
     for column in ws.columns:
         max_length = 0
         column_letter = column[0].column_letter
@@ -186,7 +205,18 @@ def autofit_columns(ws):
         ws.column_dimensions[column_letter].width = adjusted_width
 
 
-def format_excel(ws):
+def create_titles(ws):
+    """
+    creates titles of columns and styles them
+        - First Name
+        - Last Name
+        - Class
+        - Login Name
+        - Password
+    all titles are in bold and have medium borders left, right and bottom
+    :param ws: Worksheet
+    :return:
+    """
     ws.title = "Users"
 
     a1 = ws['A1']
@@ -226,7 +256,7 @@ if __name__ == '__main__':
     rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
     stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(rot_file_handler)
-    # logger.addHandler(stream_handler)
+    # logger.addHandler(stream_handler) # todo uncomment this
 
     write_excel("users.xlsx", create_users("Namen.xlsx"))
     print("done")
