@@ -180,11 +180,8 @@ def autofit_columns(ws):
         max_length = 0
         column_letter = column[0].column_letter
         for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
+            if len(str(cell.value)) > max_length:
+                max_length = len(cell.value)
         adjusted_width = (max_length + 2) * 1.2
         ws.column_dimensions[column_letter].width = adjusted_width
 
