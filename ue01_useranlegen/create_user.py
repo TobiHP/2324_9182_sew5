@@ -18,6 +18,8 @@ from logging.handlers import RotatingFileHandler
 
 import openpyxl
 from openpyxl.reader.excel import load_workbook
+from openpyxl.styles import Font, PatternFill, Border, Side
+
 from create_class import generate_password
 
 logger = logging.getLogger("create_user_logger")
@@ -73,13 +75,14 @@ def create_users(filename: str):
         last_name = shave_marks(row[1].replace(" ", "_").translate(special_char_map))
         group_name = row[2].lower()
         class_name = row[3].lower() if row[3] else None
-        user_name = first_name + last_name
 
         name_pattern = "^[A-Za-z][A-Za-z0-9._-]+$"
         if not re.search(name_pattern, first_name) or not re.search(name_pattern, last_name):
             continue
 
         last_name = convert_multiple_last_names(last_name, last_names)
+
+        user_name = last_name.lower()
 
         logger.debug(f"yielding class user: {first_name}")
         yield from create_user(class_name, first_name, group_name, last_name, user_name)
@@ -99,12 +102,14 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
         home_directory = f"/home/klassen/{class_name}/{last_name}/"
     else:
         home_directory = f"/home/lehrer/{last_name}/"
-    yield (home_directory,
-           first_name,
-           group_name,
-           class_name,
-           user_name,
-           generate_password(first_name, last_name, str(class_name)))
+    yield (home_directory,  # home directory
+           first_name,      # first name
+           last_name,       # last name
+           class_name,      # class name
+           group_name,      # main group name
+           class_name,      # additional groups
+           user_name,       # user name
+           generate_password(first_name, last_name, str(class_name)))   # password
 
 
 def convert_multiple_last_names(last_name, last_names):
@@ -139,21 +144,58 @@ def write_excel(filename, data):
     counter = 1
 
     ws = wb.active
-    ws.title = "Users"
-    ws['A1'] = "Name"
-    ws['B1'] = "Password"
+    format_excel(ws)
     for user in data:
         counter += 1
-        home_directory, first_name, main_group, groups, username, password = user
+        home_directory, first_name, last_name, class_name, main_group, groups, username, password = user
         # print(user)
-        ws[f'A{counter}'].value = username
-        ws[f'B{counter}'].value = password.replace('\\', '')
+        ws[f'A{counter}'].value = first_name
+        ws[f'B{counter}'].value = last_name
+        ws[f'C{counter}'].value = class_name
+        ws[f'D{counter}'].value = username
+        ws[f'E{counter}'].value = password.replace('\\', '')
+
+        fill = PatternFill(start_color="BBBBBB", end_color="BBBBBB", fill_type="solid")
+
+        if counter % 2 == 0:
+            for cell in ws[counter]:
+                cell.fill = fill
 
     wb.save(filename)
 
 
+def format_excel(ws):
+    ws.title = "Users"
+
+    a1 = ws['A1']
+    a1.value = "First Name"
+    a1.font = Font(bold=True)
+
+    b1 = ws['B1']
+    b1.value = "Last Name"
+    b1.font = Font(bold=True)
+
+    c1 = ws['C1']
+    c1.value = "Class"
+    c1.font = Font(bold=True)
+
+    d1 = ws['D1']
+    d1.value = "Login Name"
+    d1.font = Font(bold=True)
+
+    e1 = ws['E1']
+    e1.value = "Password"
+    e1.font = Font(bold=True)
+
+    thick_border = Border(bottom=Side(style='medium'))
+    for cell in ws[1]:
+        cell.border = thick_border
+
+
 if __name__ == '__main__':
     # TODO TESTS
+    # TODO parse args
+    # TODO argument for text-file and argument for excel-file
     logger.setLevel(logging.DEBUG)
     rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
     stream_handler = logging.StreamHandler(sys.stdout)
@@ -161,6 +203,7 @@ if __name__ == '__main__':
     # logger.addHandler(stream_handler)
 
     write_excel("users.xlsx", create_users("Namen.xlsx"))
+    print("done")
 
     # for user in create_users("Namen.xlsx"):
     #     print(user)
