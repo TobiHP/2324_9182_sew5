@@ -8,20 +8,6 @@ from openpyxl import load_workbook
 
 logger = logging.getLogger("create_user_logger")
 
-'''
-    - ein Bash-Script2 mit allen notwendigen Schritten/Befehlen zum Erzeugen der Benutzer3
-    – ein Bash-Script zum Löschen der angelegten Benutzer
-    – eine Liste mit Usernamen und Passwörtern zum Verteilen an die unterrichtenden Lehrer
-    – ein Logfile mit sinnvollen Angaben
-'''
-'''
-    – Einlesen (in Liste/Generator oder ähnliches)
-    – Aufbereiten/Nachbessern:
-        ∗ PW erzeugen11
-        ∗ bei echten Usernamen: Korrektur des Namens (Umlaute), doppelte Namen, etc. ∗ Ordnernamen
-    – Ausgabe
-'''
-
 
 def read_excel(file_path: str):
     """
@@ -60,7 +46,7 @@ def write_class_script(data, filename: str):
 
     groups = "cdrom,plugdev,sambashare"
 
-    with open(filename, "w") as script, open("passwords.txt", "w") as passwords:
+    with open(filename, "w") as script, open("class_passwords.txt", "w") as passwords:
         for entry in data:
             home_directory, username, main_group, password = entry
             script.write("useradd "

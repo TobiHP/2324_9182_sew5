@@ -9,6 +9,7 @@ Als Login-Name wird der Familienname verwendet:
 • Für folgende Teilaufgaben sollten Tests enthalten sein:
 – Sonderzeichen im Benutzernamen – Doppelte Benutzernamen
 """
+import argparse
 import logging
 import random
 import sys
@@ -96,7 +97,12 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
     :param group_name:
     :param last_name:
     :param user_name:
-    :return:
+    :return: (home_directory, first_name, last_name, class_name, main_group_name, additional_groups, user_name, password)
+
+    >>> user = [entry for entry in create_user("5cn", "tobias", "5cn", "hernandez_perez", "tobi")]
+    >>> user = user.pop()[:-1] # remove password because random
+    >>> user
+    ('/home/klassen/5cn/hernandez_perez/', 'tobias', 'hernandez_perez', '5cn', '5cn', '5cn', 'tobi')
     """
     if class_name:
         home_directory = f"/home/klassen/{class_name}/{last_name}/"
@@ -119,6 +125,14 @@ def convert_multiple_last_names(last_name, last_names):
     :param last_name:
     :param last_names:
     :return:
+
+    >>> last_names = ["zainzinger","breunig", "wagner"]
+    >>> convert_multiple_last_names("breunig", last_names)
+    'breunig1'
+    >>> convert_multiple_last_names("breunig", last_names)
+    'breunig2'
+    >>> convert_multiple_last_names("meier", last_names)
+    'meier'
     """
     if last_name in last_names:
         logger.debug("lastname '" + last_name + "' already exists -> appending number")
@@ -132,6 +146,13 @@ def convert_multiple_last_names(last_name, last_names):
 def shave_marks(txt):
     """
     Remove all diacritic marks
+
+    >>> shave_marks("î lövé sëw")
+    'i love sew'
+    >>> shave_marks("abcdefghijklmnopqrstuvwxyz")
+    'abcdefghijklmnopqrstuvwxyz'
+    >>> shave_marks(" ")
+    ' '
     """
     norm_txt = unicodedata.normalize('NFD', txt)
     shaved = ''.join(c for c in norm_txt
@@ -165,6 +186,19 @@ def write_excel(filename, data):
     autofit_columns(ws)
 
     wb.save(filename)
+
+
+def write_txt(filename, data):
+    """
+    writes the users and their passwords into a txt file
+    :param filename:
+    :param data:
+    :return:
+    """
+    with open(filename, "w") as passwords:
+        for entry in data:
+            home_directory, first_name, last_name, class_name, main_group, groups, username, password = entry
+            passwords.write("Username:   " + username + "\nPasswort: " + password.replace("\\", "") + "\n\n")
 
 
 def style_row(counter, ws):
@@ -274,21 +308,51 @@ def write_user_script(filename: str, data):
             script.write(f"echo {username}:\"{password}\" | chpasswd\n\n")
 
 
-if __name__ == '__main__':
-    # TODO TESTS
-    # TODO parse args
-    # TODO argument for text-file and argument for excel-file
-    logger.setLevel(logging.DEBUG)
+def parse_args():
+    """
+    The necessary commands to make the command line tools usable
+    :return:
+    """
+    create_logger()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename")
+    parser.add_argument("-e", "--excel", help="set the output method to excel (default=txt)", action="store_true")
+    parser.add_argument('-v', "--verbosity", help="increase output verbosity", action="store_true")
+    parser.add_argument("-q", "--quiet", help="decrease output verbosity", action="store_true")
+
+    args = parser.parse_args()
+
+    if args.verbosity:
+        print("verbosity turned on")
+        logger.setLevel(logging.DEBUG)
+    elif args.quiet:
+        logger.setLevel(logging.NOTSET)
+
+    if args.filename:
+        write_user_script("new_user_script.sh", create_users(args.filename))
+        if args.excel:
+            write_excel("users.xlsx", create_users(args.filename))
+        else:
+            write_txt("user_passwords.txt", create_users(args.filename))
+
+
+def create_logger():
+    """
+    creates the variables necessary for logging
+    :return:
+    """
     rot_file_handler = RotatingFileHandler('create_user.log', maxBytes=10_000, backupCount=5)
     stream_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(rot_file_handler)
-    # logger.addHandler(stream_handler) # todo uncomment this
+    logger.addHandler(stream_handler)
 
-    write_excel("users.xlsx", create_users("Namen.xlsx"))
-    write_user_script("new_user_script.sh", create_users("Namen.xlsx"))
+
+if __name__ == '__main__':
+    # TODO TESTS?
+
+    parse_args()
+
+    # write_excel("users.xlsx", create_users("Namen.xlsx"))
+    # write_user_script("new_user_script.sh", create_users("Namen.xlsx"))
     print("done")
-
-    # for user in create_users("Namen.xlsx"):
-    #     print(user)
-    #     pass
-    #     print(user)
