@@ -115,7 +115,7 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
            group_name,      # main group name
            class_name,      # additional groups
            user_name,       # user name
-           generate_password(first_name, last_name, str(class_name)))   # password
+           generate_password(first_name, last_name, str(class_name) if class_name else "l3hr3r"))   # password
 
 
 def convert_multiple_last_names(last_name, last_names):
@@ -199,8 +199,9 @@ def write_txt(filename, data):
         for entry in data:
             home_directory, first_name, last_name, class_name, main_group, groups, username, password = entry
             passwords.write(f"Name:     {first_name} {last_name}\n" +
-                            f"Username: {username}\n" + username + "\n" +
-                            "Passwort:  " + password.replace("\\", "") + "\n\n"
+                            f"Klasse:   {class_name if class_name else ''}\n" +
+                            f"Username: {username}\n" +
+                            "Passwort: " + password.replace("\\", "") + "\n\n"
                             )
 
 
