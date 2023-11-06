@@ -198,7 +198,10 @@ def write_txt(filename, data):
     with open(filename, "w") as passwords:
         for entry in data:
             home_directory, first_name, last_name, class_name, main_group, groups, username, password = entry
-            passwords.write("Username:   " + username + "\nPasswort: " + password.replace("\\", "") + "\n\n")
+            passwords.write(f"Name:     {first_name} {last_name}\n" +
+                            f"Username: {username}\n" + username + "\n" +
+                            "Passwort:  " + password.replace("\\", "") + "\n\n"
+                            )
 
 
 def style_row(counter, ws):
@@ -349,8 +352,6 @@ def create_logger():
 
 
 if __name__ == '__main__':
-    # TODO TESTS?
-
     parse_args()
 
     # write_excel("users.xlsx", create_users("Namen.xlsx"))

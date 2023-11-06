@@ -17,6 +17,7 @@ def read_excel(file_path: str):
     """
 
     logger.debug(f"reading from: {file_path}")
+    existing_users = []
 
     try:
         workbook = load_workbook(file_path, read_only=True)
@@ -31,9 +32,12 @@ def read_excel(file_path: str):
         class_room = row[1].value
         class_teacher = row[2].value
 
-        if class_name is not None and class_room is not None and class_teacher is not None:
-            logger.debug(f"yielding: {class_name} {class_room} {class_teacher}")
-            yield class_name, class_room, class_teacher
+        if class_name not in existing_users:
+            existing_users.append(class_name)
+
+            if class_name is not None and class_room is not None and class_teacher is not None:
+                logger.debug(f"yielding: {class_name} {class_room} {class_teacher}")
+                yield class_name, class_room, class_teacher
 
 
 def write_class_script(data, filename: str):
@@ -168,4 +172,3 @@ if __name__ == '__main__':
     parse_args()
 
 # TODO: – bei bereits existierenden Benutzern sollte eine Fehlermeldung erfolgen????????????
-# TODO: – die Bash-Scripts sollten bei Problemen abbrechen
