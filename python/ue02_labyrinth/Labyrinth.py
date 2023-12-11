@@ -1,32 +1,38 @@
 import argparse
-import numpy as np
 from time import sleep
 
 delay = 0
 do_print = False
 
-def printLabyrinth(lab: [[]]):
-    print(np.matrix(lab))
+
+def print_labyrinth(lab: [str]):
+    for row in lab:
+        print(row.strip())
 
 
 def suchen(zeile: int, spalte: int, lab: [[]]):
+    if do_print:
+        print_labyrinth(lab)
+        print()
+
     if lab[zeile][spalte] == 'A':
         return True
     elif lab[zeile][spalte] == '#' or lab[zeile][spalte] == 'x':
         return False
 
-    lab[zeile][spalte] = 'x'
-
-    if do_print:
-        printLabyrinth(lab)
-        print()
+    lab[zeile] = lab[zeile][:spalte] + 'x' + lab[zeile][spalte+1:]
 
     sleep(delay)
 
-    return (suchen(zeile, spalte + 1, lab) or   # rechts
-            suchen(zeile, spalte - 1, lab) or   # links
-            suchen(zeile - 1, spalte, lab) or   # oben
-            suchen(zeile + 1, spalte, lab))     # unten
+    return (suchen(zeile, spalte + 1, lab) or  # rechts
+            suchen(zeile, spalte - 1, lab) or  # links
+            suchen(zeile - 1, spalte, lab) or  # oben
+            suchen(zeile + 1, spalte, lab))  # unten
+
+
+def read_file(filename):
+    with open(filename, "r") as f:
+        return f.readlines()
 
 
 def parse_args():
@@ -34,6 +40,8 @@ def parse_args():
     The necessary commands to make the command line tools usable
     :return:
     """
+    global do_print
+    global delay
 
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
@@ -46,7 +54,13 @@ def parse_args():
     args = parser.parse_args()
 
     if args.filename:
-        pass
+        lab = read_file(args.filename)
+        do_print = args.print
+        delay = args.delay
+        xstart = args.xstart if args.xstart else 1
+        ystart = args.ystart if args.ystart else 1
+        suchen(xstart, ystart, lab)
+        print("cool")
 
 
 if __name__ == '__main__':
