@@ -32,12 +32,14 @@ def read_excel(file_path: str):
         class_room = row[1].value
         class_teacher = row[2].value
 
-        if class_name not in existing_users:
-            existing_users.append(class_name)
+        if class_name in existing_users:
+            raise Exception(f"User {class_name} already exists!")
 
-            if class_name is not None and class_room is not None and class_teacher is not None:
-                logger.debug(f"yielding: {class_name} {class_room} {class_teacher}")
-                yield class_name, class_room, class_teacher
+        existing_users.append(class_name)
+
+        if class_name is not None and class_room is not None and class_teacher is not None:
+            logger.debug(f"yielding: {class_name} {class_room} {class_teacher}")
+            yield class_name, class_room, class_teacher
 
 
 def write_class_script(data, filename: str):
@@ -50,7 +52,7 @@ def write_class_script(data, filename: str):
 
     groups = "cdrom,plugdev,sambashare"
 
-    with open(filename, "w") as script, open("class_passwords.txt", "w") as passwords:
+    with open(filename, "w") as script, open(f"delete_{filename}", "w") as delete_script, open("class_passwords.txt", "w") as passwords:
         for entry in data:
             home_directory, username, main_group, password = entry
             script.write("useradd "
@@ -65,6 +67,7 @@ def write_class_script(data, filename: str):
             logger.debug(f"writing to script: \"Klasse:  {username}, Passwort: {password}")
 
             script.write("echo " + username + ":" + password + " | chpasswd\n\n")
+            delete_script.write(f"userdel -r {username} \n")
             passwords.write("Klasse:   " + username + "\nPasswort: " + password.replace("\\", "") + "\n\n")
 
         for additional in create_additional_users():
@@ -170,5 +173,3 @@ def create_logger():
 
 if __name__ == '__main__':
     parse_args()
-
-# TODO: – bei bereits existierenden Benutzern sollte eine Fehlermeldung erfolgen????????????

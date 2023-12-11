@@ -1,20 +1,8 @@
-"""
-Als Login-Name wird der Familienname verwendet:
-– Nur Kleinbuchstaben.
-– Alle Sonderzeichen (z.B. Umlaute) werden ersetzt (zB aus Ä wird ae, aus ß wird ss).
-– Akzente müssen entfernt werden.
-– Leerzeichen im Namen werden durch Unterstrich ersetzt.
-– Bei mehreren gleichen Namen werden die Zahlen 1,2,3, ... angehängt (Beispiel: maier, maier1, maier2, ...).
-• Das Passwort sollte zufällig gewählt werden.
-• Für folgende Teilaufgaben sollten Tests enthalten sein:
-– Sonderzeichen im Benutzernamen – Doppelte Benutzernamen
-"""
 import argparse
 import logging
-import random
+import re
 import sys
 import unicodedata
-import re
 from logging.handlers import RotatingFileHandler
 
 import openpyxl
@@ -85,7 +73,7 @@ def create_users(filename: str):
 
         user_name = last_name.lower()
 
-        logger.debug(f"yielding class user: {first_name}")
+        logger.debug(f"yielding user: {first_name}")
         yield from create_user(class_name, first_name, group_name, last_name, user_name)
 
 
@@ -108,6 +96,8 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
         home_directory = f"/home/klassen/{class_name}/{last_name}/"
     else:
         home_directory = f"/home/lehrer/{last_name}/"
+
+    logger.debug(f"creating user: {user_name}")
     yield (home_directory,  # home directory
            first_name,      # first name
            last_name,       # last name
@@ -118,7 +108,7 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
            generate_password(first_name, last_name, str(class_name) if class_name else "l3hr3r"))   # password
 
 
-def convert_multiple_last_names(last_name, last_names):
+def convert_multiple_last_names(last_name: str, last_names: []):
     """
     in case of a reoccurring last name
     appends iterating number
@@ -134,6 +124,8 @@ def convert_multiple_last_names(last_name, last_names):
     >>> convert_multiple_last_names("meier", last_names)
     'meier'
     """
+    logger.debug(f"converting name: {last_name}")
+
     if last_name in last_names:
         logger.debug("lastname '" + last_name + "' already exists -> appending number")
         last_names.append(last_name)
@@ -143,7 +135,7 @@ def convert_multiple_last_names(last_name, last_names):
     return last_name
 
 
-def shave_marks(txt):
+def shave_marks(txt: str):
     """
     Remove all diacritic marks
 
@@ -154,19 +146,23 @@ def shave_marks(txt):
     >>> shave_marks(" ")
     ' '
     """
+    logger.debug(f"shaving marks of: {txt}")
+
     norm_txt = unicodedata.normalize('NFD', txt)
     shaved = ''.join(c for c in norm_txt
                      if not unicodedata.combining(c))
     return unicodedata.normalize('NFC', shaved)
 
 
-def write_excel(filename, data):
+def write_excel(filename: str, data):
     """
     Write User Data to an Excel File
     :param filename: Excel file to write to
     :param data: User Data
     :return:
     """
+    logger.debug(f"writing to excel file: {filename}")
+
     wb = openpyxl.Workbook()
     counter = 1
 
@@ -188,13 +184,15 @@ def write_excel(filename, data):
     wb.save(filename)
 
 
-def write_txt(filename, data):
+def write_txt(filename: str, data):
     """
     writes the users and their passwords into a txt file
     :param filename:
     :param data:
     :return:
     """
+    logger.debug(f"writing to txt file: {filename}")
+
     with open(filename, "w") as passwords:
         for entry in data:
             home_directory, first_name, last_name, class_name, main_group, groups, username, password = entry
@@ -205,7 +203,7 @@ def write_txt(filename, data):
                             )
 
 
-def style_row(counter, ws):
+def style_row(counter: int, ws):
     """
     applies styles to a single row of cells
         - an alternating background color
@@ -289,7 +287,7 @@ def create_titles(ws):
 def write_user_script(filename: str, data):
     """
     Writes data consisting of user entries in a given file
-    :param data: generator object (home_directory, username, main_group, groups)
+    :param data: generator object (home_directory, first_name, last_name, class_name, main_group, groups, username, password)
     :param filename: file to be written
     :return: bash script for user creation
     """
@@ -310,6 +308,24 @@ def write_user_script(filename: str, data):
             logger.debug(f"writing to script: \"Klasse:  {username}, Passwort: {password}")
 
             script.write(f"echo {username}:\"{password}\" | chpasswd\n\n")
+
+
+def write_delete_script(filename: str, data):
+    """
+    Writes data consisting of user entries in a given file
+    Creates a script that deletes given users
+    :param data: generator object (home_directory, first_name, last_name, class_name, main_group, groups, username, password)
+    :param filename: file to be written
+    :return: bash script for user deletion
+    """
+
+    with open(filename, "w") as delete_script:
+        for user in data:
+            home_directory, first_name, last_name, class_name, main_group, groups, username, password = user
+            
+            logger.debug(f"writing to delete script -> User:  {username}")
+
+            delete_script.write(f"userdel -r {username} \n")
 
 
 def parse_args():
@@ -335,6 +351,7 @@ def parse_args():
 
     if args.filename:
         write_user_script("new_user_script.sh", create_users(args.filename))
+        write_delete_script("delete_user_script.sh", create_users(args.filename))
         if args.excel:
             write_excel("users.xlsx", create_users(args.filename))
         else:
@@ -354,7 +371,4 @@ def create_logger():
 
 if __name__ == '__main__':
     parse_args()
-
-    # write_excel("users.xlsx", create_users("Namen.xlsx"))
-    # write_user_script("new_user_script.sh", create_users("Namen.xlsx"))
     print("done")
