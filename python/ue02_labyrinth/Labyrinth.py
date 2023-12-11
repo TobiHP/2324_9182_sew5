@@ -20,7 +20,7 @@ def suchen(zeile: int, spalte: int, lab: [[]]):
     elif lab[zeile][spalte] == '#' or lab[zeile][spalte] == 'x':
         return False
 
-    lab[zeile] = lab[zeile][:spalte] + 'x' + lab[zeile][spalte+1:]
+    lab[zeile] = lab[zeile][:spalte] + 'x' + lab[zeile][spalte + 1:]
 
     sleep(delay)
 
@@ -28,6 +28,30 @@ def suchen(zeile: int, spalte: int, lab: [[]]):
             suchen(zeile, spalte - 1, lab) or  # links
             suchen(zeile - 1, spalte, lab) or  # oben
             suchen(zeile + 1, spalte, lab))  # unten
+
+
+def suchen_alle(zeile: int, spalte: int, lab: [[]]):
+    anz_wege = 0
+
+    if lab[zeile][spalte] == 'A':
+        return 1
+    elif lab[zeile][spalte] != ' ':
+        return 0
+
+    lab[zeile] = lab[zeile][:spalte] + 'x' + lab[zeile][spalte + 1:]
+
+    if do_print:
+        print_labyrinth(lab)
+        print()
+
+    anz_wege += (suchen_alle(zeile, spalte + 1, lab) +  # rechts
+                 suchen_alle(zeile, spalte - 1, lab) +  # links
+                 suchen_alle(zeile + 1, spalte, lab) +  # oben
+                 suchen_alle(zeile - 1, spalte, lab))  # unten
+
+    lab[zeile] = lab[zeile][:spalte] + ' ' + lab[zeile][spalte + 1:]
+
+    return anz_wege
 
 
 def read_file(filename):
@@ -59,8 +83,7 @@ def parse_args():
         delay = args.delay
         xstart = args.xstart if args.xstart else 1
         ystart = args.ystart if args.ystart else 1
-        suchen(xstart, ystart, lab)
-        print("cool")
+        print(suchen_alle(xstart, ystart, lab))
 
 
 if __name__ == '__main__':
