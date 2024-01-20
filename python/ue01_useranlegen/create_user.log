@@ -212,3 +212,6 @@ generating password for: A-nother Pinsky3 1bn
 writing to script: "Klasse:  pinsky3, Passwort: A-nother\=Pinsky3\(1bn\_
 yielding: Ανδρομέδη Norlien student
 yielding: חֶלְאָה Preato student
+generating users from: adf
+reading from: adf
+Error: File adf not Found!

@@ -101,8 +101,7 @@ def create_user(class_name, first_name, group_name, last_name, user_name):
     yield (home_directory,  # home directory
            first_name,      # first name
            last_name,       # last name
-           class_name,
-           # class name
+           class_name,      # class name
            group_name,      # main group name
            class_name,      # additional groups
            user_name,       # user name

@@ -42,10 +42,10 @@ deactivate nondestructive
 if [ "$OSTYPE" = "cygwin" ] || [ "$OSTYPE" = "msys" ] ; then
     # transform D:\path\to\venv to /d/path/to/venv on MSYS
     # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath "/Volumes/Data/School/SEW/python/ue01_useranlegen/venv")
+    export VIRTUAL_ENV=$(cygpath "/Volumes/Data/School/SEW/java_python/python/ue01_useranlegen/venv")
 else
     # use the path as-is
-    export VIRTUAL_ENV="/Volumes/Data/School/SEW/python/ue01_useranlegen/venv"
+    export VIRTUAL_ENV="/Volumes/Data/School/SEW/java_python/python/ue01_useranlegen/venv"
 fi
 
 _OLD_VIRTUAL_PATH="$PATH"

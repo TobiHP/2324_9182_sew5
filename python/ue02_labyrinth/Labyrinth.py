@@ -1,4 +1,5 @@
 import argparse
+import cProfile
 from time import sleep
 
 delay = 0
@@ -69,8 +70,8 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
-    parser.add_argument("-x", "--xstart", help="x-coordinate to start", action="store_true")
-    parser.add_argument("-y", "--ystart", help="y-coordinate to start", action="store_true")
+    parser.add_argument("-x", "--xstart", help="x-coordinate to start")
+    parser.add_argument("-y", "--ystart", help="y-coordinate to start")
     parser.add_argument('-p', "--print", help="print output of every solution", action="store_true")
     parser.add_argument("-t", "--time", help="print total calculation time (in milliseconds)", action="store_true")
     parser.add_argument("-d", "--delay", help="delay after printing a solution (in milliseconds)", action="store_true")
@@ -81,11 +82,22 @@ def parse_args():
         lab = read_file(args.filename)
         do_print = args.print
         delay = args.delay
-        xstart = args.xstart if args.xstart else 1
-        ystart = args.ystart if args.ystart else 1
+        xstart = int(args.xstart) if args.xstart else 1
+        ystart = int(args.ystart) if args.ystart else 1
         print(suchen_alle(xstart, ystart, lab))
 
+def run_all():
+    lab1 = read_file("l1.txt")
+    lab2 = read_file("l2.txt")
+    lab3 = read_file("l3.txt")
+    print(suchen_alle(5, 5, lab1))
+    print(suchen_alle(5, 5, lab2))
+    print(suchen_alle(5, 5, lab3))
 
 if __name__ == '__main__':
+    # lab1 = read_file("l1.txt")
+    # lab2 = read_file("l2.txt")
+    # lab3 = read_file("l3.txt")
+    # cProfile.run("run_all()")
     parse_args()
     print("done")

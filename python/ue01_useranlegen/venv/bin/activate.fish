@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Volumes/Data/School/SEW/python/ue01_useranlegen/venv"
+set -gx VIRTUAL_ENV "/Volumes/Data/School/SEW/java_python/python/ue01_useranlegen/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
