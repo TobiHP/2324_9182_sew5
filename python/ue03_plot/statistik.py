@@ -1,64 +1,37 @@
 import argparse
 import logging
 import sys
-from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from subprocess import Popen, PIPE
-from dateutil import parser
 
 import matplotlib.pyplot as plt
+from dateutil import parser
 
 logger = logging.getLogger("statistik_logger")
 
 
 def style_plot(commits_num: int):
     # Set labels and title
-    # plt.xlabel('X-axis')
-    # plt.ylabel('Y-axis')
+    plt.xlabel('hour')
+    plt.ylabel('weekday')
     plt.title(f'Tobias Hernandez Perez: {commits_num} commits')
 
     # Spacing
-    # plt.xlim(min(x) * 1.1, max(x) * 1.1)
-    # plt.ylim(min(y_sin) * 1.1, max(y_sin) * 1.1)
+    plt.xlim(-2.5, 25 * 1.1)
 
     # Markierungen
     plt.xticks([0, 5, 10, 15, 20, 25])
     plt.yticks([0, 1, 2, 3, 4, 5, 6, 7])
-
-    # LaTeX Ticks
-    # plt.xticks([-PI, -PI / 2, -PI / 4, 0, PI / 2, PI],
-    #            [r'$-\pi$', r'$-\pi/2$', r'$-\pi/4$', r'$0$', r'$+\pi/2$', r'$+\pi$'])
     plt.yticks([0, 1, 2, 3, 4, 5, 6],
                ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
 
-    # Legende
-    # plt.plot(x, y_cos, color="yellow", linewidth=2.5, linestyle="-", label="cosine")
-    # plt.plot(x, y_sin, color="cyan", linewidth=2.5, linestyle="-", label="sine")
-    # plt.legend(loc='upper left', frameon=False)
-
     # Achsen
     ax = plt.gca()
-    # ax.spines['right'].set_color('none')
-    # ax.spines['top'].set_color('none')
-    # ax.xaxis.set_ticks_position('bottom')
-    # ax.spines['bottom'].set_position(('data', 0))
-    # ax.yaxis.set_ticks_position('left')
-    # ax.spines['left'].set_position(('data', 0))
 
-    # Besonders Kennzeichnen
-    # t = 2 * PI / 3
-    # plt.plot([t, t], [0, math.cos(t)], color='blue', linewidth=2.5, linestyle="--")
-    # plt.scatter([t, ], [math.cos(t), ], 50, color='blue')
-    # plt.annotate(r'$\sin(\frac{2\pi}{3})=\frac{\sqrt{3}}{2}$',
-    #              xy=(t, math.sin(t)), xycoords='data',
-    #              xytext=(+10, +30), textcoords='offset points', fontsize=16,
-    #              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
-    # plt.plot([t, t], [0, math.sin(t)], color='red', linewidth=2.5, linestyle="--")
-    # plt.scatter([t, ], [math.sin(t), ], 50, color='red')
-    # plt.annotate(r'$\cos(\frac{2\pi}{3})=-\frac{1}{2}$',
-    #              xy=(t, math.cos(t)), xycoords='data',
-    #              xytext=(-90, -50), textcoords='offset points', fontsize=16,
-    #              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+    # Grid
+    plt.grid()
+    plt.axvline(x=8, color='gray', linestyle='-', linewidth=1, label='Extra Gridline')
+    plt.axvline(x=18, color='gray', linestyle='-', linewidth=1, label='Extra Gridline')
 
     # Bessere Sichtbarkeit der Ticks
     for label in ax.get_xticklabels() + ax.get_yticklabels():
