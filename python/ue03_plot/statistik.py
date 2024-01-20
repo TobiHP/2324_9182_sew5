@@ -11,6 +11,7 @@ logger = logging.getLogger("statistik_logger")
 
 
 def style_plot(commits_num: int):
+    logger.debug("styling plot")
     # Set labels and title
     plt.xlabel('hour')
     plt.ylabel('weekday')
@@ -42,6 +43,7 @@ def style_plot(commits_num: int):
 
 
 def create_git_scatter(folder: str):
+    logger.debug(f"creating scatter of {folder}")
     git_log = ["git", "-C", folder, "log", "--pretty=format:%h|%an|%ad|%s", "--date=format-local:%Y-%m-%d %H:%M:%S"]
     process = Popen(git_log, stdout=PIPE, stderr=PIPE, text=True)
     out, err = process.communicate()
@@ -52,6 +54,7 @@ def create_git_scatter(folder: str):
     commits_num = 0
 
     for entry in log_entries:
+        logger.debug(f"reading entry: {entry}")
         entry_components = entry.split('|')
 
         commit_hash, author_name, commit_date_time, commit_message = entry_components
