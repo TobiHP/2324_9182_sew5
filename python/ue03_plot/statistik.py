@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 from logging.handlers import RotatingFileHandler
+from subprocess import Popen, PIPE
 
 logger = logging.getLogger("statistik_logger")
 
@@ -42,4 +43,9 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    parse_args()
+    git_log = ["git", "log"]
+    process = Popen(git_log, stdout=PIPE, stderr=PIPE, text=True)
+    out, err = process.communicate()
+
+    print(out)
+    # parse_args()
