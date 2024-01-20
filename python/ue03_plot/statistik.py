@@ -41,8 +41,8 @@ def style_plot(commits_num: int):
     ax.set_axisbelow(True)
 
 
-def create_git_scatter():
-    git_log = ["git", "log", "--pretty=format:%h|%an|%ad|%s", "--date=format-local:%Y-%m-%d %H:%M:%S"]
+def create_git_scatter(folder: str):
+    git_log = ["git", "-C", folder, "log", "--pretty=format:%h|%an|%ad|%s", "--date=format-local:%Y-%m-%d %H:%M:%S"]
     process = Popen(git_log, stdout=PIPE, stderr=PIPE, text=True)
     out, err = process.communicate()
 
@@ -105,10 +105,8 @@ def parse_args():
         logger.setLevel(logging.NOTSET)
 
     if args.folder:
-        pass
+        create_git_scatter(args.folder)
 
 
 if __name__ == '__main__':
-    create_git_scatter()
-    # print(out)
-    # parse_args()
+    parse_args()
