@@ -5,7 +5,7 @@ import java.util.TreeSet;
 /**
  * @author Tobias Hernandez Perez, 5CN
  */
-public class Node {
+public class Node implements Comparable<Node>{
     private String id;
     private TreeSet<Edge> edges;
     private int distance;
@@ -59,10 +59,10 @@ public class Node {
     /**
      * TODO ?
      * → alle Nachbarn besuchen
-     * •
+     *
      *  kennt/braucht Interface IOfferDistance (=Teil von Graph)
-     * ◦
-     *  offerDistance(node2change, newPrevious, newDistance) –
+     *
+     * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
     public void visit() {
@@ -72,5 +72,11 @@ public class Node {
     @Override
     public String toString() {
         return id + ":" + edges.toString();
+    }
+
+    @Override
+    public int compareTo(Node n) {
+        // todo auch nach namen sortieren?
+        return Integer.compare(this.distance, n.distance);
     }
 }

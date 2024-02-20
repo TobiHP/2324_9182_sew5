@@ -16,7 +16,7 @@ public class Graph {
      * Sortierung: distance + Name der Node (zwei verschiedene Implentierungs-
      * Varianten möglich: in Node oder als Comperator)
      */
-    private PriorityQueue<Map<Node, Integer>> pq;
+    private PriorityQueue<Node> pq;
 
     /**
      * Liste mit allen Knoten des Graphen
@@ -38,13 +38,13 @@ public class Graph {
      * @param file csv-Datei
      */
     private void readGraphFromAdjacencyMatrixFile(Path file) throws IOException {
+        // todo exceptions
         List<String> allLines = Files.readAllLines(file);
         String[] nodeNames = allLines.get(0).substring(1).split(";", -1);
         for (String nodeName : nodeNames) {
             nodes.add(new Node(nodeName));
         }
         allLines.subList(1, allLines.size()).forEach(l -> {
-            System.out.println(l);
             String[] split = l.split(";", -1);
             Node curNode = nodes.stream().filter(n -> n.getId().equals(split[0])).findFirst().get();
 
@@ -78,7 +78,14 @@ public class Graph {
      * @param startNodeId ID des Startknoten
      */
     private void calcWithDijkstra(String startNodeId) {
-
+        Optional<Node> startNode = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
+        if (startNode.isPresent()) {
+            pq.add(startNode.get());
+        } else {
+            throw new IllegalArgumentException("The given start node " + startNodeId + " does not exist!");
+        }
+        System.out.println("---");
+        System.out.println(pq);
     }
 
     public static void main(String[] args) {
@@ -86,6 +93,7 @@ public class Graph {
 
         try {
             graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
+            graph.calcWithDijkstra("A");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
