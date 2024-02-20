@@ -28,14 +28,18 @@ public class Node implements Comparable<Node>{
      * Initialisiert den Knoten, um den Dijkstra-Algorithumus neu zu starten
      */
     public void init() {
-
+        this.edges = new TreeSet<>(new EdgeComparator());
+        this.distance = -1;
+        this.previous = null;
+        this.isVisited = false;
     }
 
     /**
      * Zum Aendern von distance und previous
      */
-    public void change() {
-
+    public void change(Node newPrevious, int newDistance) {
+        previous = newPrevious;
+        distance = newDistance;
     }
 
     /**
@@ -65,7 +69,18 @@ public class Node implements Comparable<Node>{
      * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
-    public void visit() {
+    public void visit(Node previous, int distance) {
+        isVisited = true;
+        if (this.equals(previous)) {
+            this.distance = 0;
+            return;
+        }
+
+        this.previous = previous;
+        int minDist = Integer.MAX_VALUE;
+        for (Edge edge : edges) {
+            minDist = Math.min(edge.getDistance(), minDist);
+        }
 
     }
 
