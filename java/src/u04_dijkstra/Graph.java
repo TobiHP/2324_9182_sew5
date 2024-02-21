@@ -79,7 +79,10 @@ public class Graph {
         Optional<Node> startNode = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
         if (startNode.isPresent()) {
             pq.add(startNode.get());
-            pq.peek().visit(pq, pq.peek(), 0);
+            for (int i = 0; i < pq.size(); i++) {
+                Node curNode = pq.poll();
+                curNode.visit(pq, startNode.get());
+            }
         } else {
             throw new IllegalArgumentException("The given start node " + startNodeId + " does not exist!");
         }
@@ -90,8 +93,8 @@ public class Graph {
         Graph graph = new Graph();
 
         try {
-            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
-//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
+            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
             graph.calcWithDijkstra("A");
         } catch (IOException e) {
             throw new RuntimeException(e);

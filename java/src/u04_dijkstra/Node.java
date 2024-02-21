@@ -70,23 +70,31 @@ public class Node implements Comparable<Node>{
      * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
-    public void visit(PriorityQueue<Node> pq, Node previous, int distance) {
+    public void visit(PriorityQueue<Node> pq, Node startNode) {
         if (isVisited) return;
 
         isVisited = true;
 
-        pq.poll();
-        if (distance < this.distance) {
-            this.distance = distance;
-            this.previous = previous;
-            pq.add(this);
+        if (this.equals(startNode)) {
+            this.distance = 0;
+            this.previous = this;
         }
-
-//        Optional<Edge> previousEdge = edges.stream().filter(e -> e.getNeighbor().equals(previous)).findFirst();
 
         edges.stream()
                 .sorted(new EdgeComparator())
-                .forEach(e -> e.getNeighbor().visit(pq, this, this.distance + e.getDistance()));
+                .forEach(e -> {
+                    Node neighbor = e.getNeighbor();
+                    if (!neighbor.equals(this.previous)) {
+                        int newDist = this.distance + e.getDistance();
+                        if (newDist < neighbor.distance) {
+                            neighbor.distance = newDist;
+                            neighbor.previous = this;
+                            pq.remove(neighbor);
+                            pq.add(neighbor);
+                        }
+//                        neighbor.visit(pq, this, newDist);
+                    }
+                });
     }
 
     @Override
