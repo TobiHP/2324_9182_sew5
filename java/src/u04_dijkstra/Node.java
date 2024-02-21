@@ -1,5 +1,7 @@
 package u04_dijkstra;
 
+import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 /**
@@ -15,7 +17,7 @@ public class Node implements Comparable<Node>{
     public Node(String id) {
         this.id = id;
         this.edges = new TreeSet<>(new EdgeComparator());
-        this.distance = -1;
+        this.distance = Integer.MAX_VALUE;
         this.previous = null;
         this.isVisited = false;
     }
@@ -69,24 +71,44 @@ public class Node implements Comparable<Node>{
      * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
-    public void visit(Node previous, int distance) {
-        isVisited = true;
-        if (this.equals(previous)) {
-            this.distance = 0;
-            return;
-        }
+    public void visit(PriorityQueue<Node> pq, Node previous, int distance) {
+        if (isVisited) return;
 
-        this.previous = previous;
-        int minDist = Integer.MAX_VALUE;
-        for (Edge edge : edges) {
-            minDist = Math.min(edge.getDistance(), minDist);
-        }
+        isVisited = true;
+
+//        if (this.equals(previous)) {
+//            this.distance = 0;
+//            return;
+//        }
+
+        edges.forEach(System.out::println);
+
+        Optional<Edge> previousEdge = edges.stream().filter(e -> e.getNeighbor().equals(previous)).findFirst();
+        System.out.println("Previous: " + (previousEdge.isPresent() ? previousEdge.get() : ""));
+
+        System.out.println("hi");
+        System.out.println(pq);
+        edges.stream().sorted(new EdgeComparator()).forEach(e -> {
+            int newDist = this.distance + distance;
+            if (newDist < e.getNeighbor().distance) {
+                pq.remove(e.getNeighbor());
+                e.getNeighbor().distance = newDist;
+                e.getNeighbor().previous = this;
+                pq.add(e.getNeighbor());
+            }
+
+        });
+//        this.previous = previous;
+//        int minDist = Integer.MAX_VALUE;
+//        for (Edge edge : edges) {
+//            minDist = Math.min(edge.getDistance(), minDist);
+//        }
 
     }
 
     @Override
     public String toString() {
-        return id + ":" + edges.toString();
+        return id + ":" + distance;
     }
 
     @Override
