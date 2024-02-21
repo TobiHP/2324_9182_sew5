@@ -7,7 +7,7 @@ import java.util.TreeSet;
  * @author Tobias Hernandez Perez, 5CN
  */
 public class Node implements Comparable<Node>{
-    private String id;
+    private final String id;
     private TreeSet<Edge> edges;
     private int distance;
     private Node previous;
@@ -30,7 +30,7 @@ public class Node implements Comparable<Node>{
      */
     public void init() {
         this.edges = new TreeSet<>(new EdgeComparator());
-        this.distance = -1;
+        this.distance = Integer.MAX_VALUE;
         this.previous = null;
         this.isVisited = false;
     }
@@ -48,6 +48,7 @@ public class Node implements Comparable<Node>{
      * @return Pfad als String
      */
     public String getPath() {
+        // todo
         return null;
     }
 
@@ -62,7 +63,6 @@ public class Node implements Comparable<Node>{
     }
 
     /**
-     * TODO ?
      * → alle Nachbarn besuchen
      *
      *  kennt/braucht Interface IOfferDistance (=Teil von Graph)
@@ -70,15 +70,9 @@ public class Node implements Comparable<Node>{
      * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
-    public void visit(PriorityQueue<Node> pq, Node startNode) {
+    public void visit(PriorityQueue<Node> pq) {
         if (isVisited) return;
-
         isVisited = true;
-
-        if (this.equals(startNode)) {
-            this.distance = 0;
-            this.previous = this;
-        }
 
         edges.stream()
                 .sorted(new EdgeComparator())
@@ -87,12 +81,10 @@ public class Node implements Comparable<Node>{
                     if (!neighbor.equals(this.previous)) {
                         int newDist = this.distance + e.getDistance();
                         if (newDist < neighbor.distance) {
-                            neighbor.distance = newDist;
-                            neighbor.previous = this;
+                            neighbor.change(this, newDist);
                             pq.remove(neighbor);
                             pq.add(neighbor);
                         }
-//                        neighbor.visit(pq, this, newDist);
                     }
                 });
     }

@@ -64,6 +64,7 @@ public class Graph {
      * @return
      */
     private String getAllPaths() {
+        // todo
         return null;
     }
 
@@ -76,12 +77,13 @@ public class Graph {
      * @param startNodeId ID des Startknoten
      */
     private void calcWithDijkstra(String startNodeId) {
-        Optional<Node> startNode = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
-        if (startNode.isPresent()) {
-            pq.add(startNode.get());
+        Optional<Node> startNodeOpt = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
+        if (startNodeOpt.isPresent()) {
+            Node startNode = startNodeOpt.get();
+            startNode.change(startNode, 0);
+            pq.add(startNode);
             while (!pq.isEmpty()) {
-                Node curNode = pq.poll();
-                curNode.visit(pq, startNode.get());
+                pq.poll().visit(pq);
             }
         } else {
             throw new IllegalArgumentException("The given start node " + startNodeId + " does not exist!");
