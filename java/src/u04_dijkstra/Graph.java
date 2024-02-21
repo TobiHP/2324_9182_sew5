@@ -77,16 +77,13 @@ public class Graph {
      */
     private void calcWithDijkstra(String startNodeId) {
         Optional<Node> startNode = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
-        int curDistance = 0;
         if (startNode.isPresent()) {
             pq.add(startNode.get());
-            for (int i = 0; i < pq.size(); i++) {
-                Node curNode = pq.poll();
-                curNode.visit(pq, curNode, curDistance);
-            }
+            pq.peek().visit(pq, pq.peek(), 0);
         } else {
             throw new IllegalArgumentException("The given start node " + startNodeId + " does not exist!");
         }
+        nodes.forEach(System.out::println);
     }
 
     public static void main(String[] args) {
