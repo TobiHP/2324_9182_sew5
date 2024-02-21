@@ -48,8 +48,8 @@ public class Graph {
             String[] split = l.split(";", -1);
             Node curNode = nodes.stream().filter(n -> n.getId().equals(split[0])).findFirst().get();
 
-            for (int i = 1; i < split.length-1; i++) {
-                int index = i-1;
+            for (int i = 1; i < split.length; i++) {
+                int index = i - 1;
                 Optional<Node> neighbor = nodes.stream().filter(n -> n.getId().equals(nodeNames[index])).findFirst();
                 if (neighbor.isPresent() && !split[i].isEmpty()) {
                     curNode.addEdge(neighbor.get(), Integer.parseInt(split[i]));
@@ -79,14 +79,13 @@ public class Graph {
         Optional<Node> startNode = nodes.stream().filter(n -> n.getId().equals(startNodeId)).findFirst();
         if (startNode.isPresent()) {
             pq.add(startNode.get());
-            for (int i = 0; i < pq.size(); i++) {
+            while (!pq.isEmpty()) {
                 Node curNode = pq.poll();
                 curNode.visit(pq, startNode.get());
             }
         } else {
             throw new IllegalArgumentException("The given start node " + startNodeId + " does not exist!");
         }
-        nodes.forEach(System.out::println);
     }
 
     public static void main(String[] args) {
@@ -96,6 +95,7 @@ public class Graph {
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
             graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
             graph.calcWithDijkstra("A");
+            graph.nodes.forEach(System.out::println);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
