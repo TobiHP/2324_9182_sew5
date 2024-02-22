@@ -48,8 +48,8 @@ public class Node implements Comparable<Node>{
      * @return Pfad als String
      */
     public String getPath() {
-        // todo
-        return null;
+        if (previous == this) return this.getId();
+        return previous.getPath() + " - " + this.getId();
     }
 
     /**

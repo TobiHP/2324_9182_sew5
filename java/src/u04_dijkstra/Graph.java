@@ -64,8 +64,11 @@ public class Graph {
      * @return
      */
     private String getAllPaths() {
-        // todo
-        return null;
+        StringBuilder allPaths = new StringBuilder();
+        for (Node n : nodes) {
+            allPaths.append(n.getPath()).append("\n");
+        }
+        return allPaths.toString();
     }
 
     /**
@@ -98,6 +101,7 @@ public class Graph {
             graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
             graph.calcWithDijkstra("A");
             graph.nodes.forEach(System.out::println);
+            System.out.println(graph.getAllPaths());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
