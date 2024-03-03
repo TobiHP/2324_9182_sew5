@@ -12,8 +12,8 @@ y_sin = np.sin(x)
 y_cos = np.cos(x)
 
 # Plot the sine wave
-plt.plot(x, y_sin)
-plt.plot(x, y_cos)
+# plt.plot(x, y_sin)
+# plt.plot(x, y_cos)
 
 # Set labels and title
 plt.xlabel('X-axis')
@@ -35,8 +35,8 @@ plt.yticks([-1, 0, +1],
            [r'$-1$', r'$0$', r'$+1$'])
 
 # Legende
-plt.plot(x, y_cos, color="yellow", linewidth=2.5, linestyle="-", label="cosine")
-plt.plot(x, y_sin, color="cyan", linewidth=2.5, linestyle="-", label="sine")
+plt.plot(x, y_cos, color="yellow", linewidth=2.5, linestyle="--", label="cosine")
+plt.plot(x, y_sin, color="cyan", linewidth=2.5, linestyle="--", label="sine")
 plt.legend(loc='upper left', frameon=False)
 
 # Achsen

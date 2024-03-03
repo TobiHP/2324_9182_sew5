@@ -5,7 +5,6 @@ from logging.handlers import RotatingFileHandler
 from subprocess import Popen, PIPE
 
 import matplotlib.pyplot as plt
-from dateutil import parser
 
 logger = logging.getLogger("statistik_logger")
 
@@ -19,11 +18,12 @@ def style_plot(commits_num: int):
 
     # Spacing
     plt.xlim(-2.5, 25 * 1.1)
+    plt.ylim(-0.5, 6.5)
 
     # Markierungen
     plt.xticks([0, 5, 10, 15, 20, 25])
-    plt.yticks([0, 1, 2, 3, 4, 5, 6, 7])
-    plt.yticks([0, 1, 2, 3, 4, 5, 6],
+    plt.yticks([1, 2, 3, 4, 5, 6, 0])
+    plt.yticks([1, 2, 3, 4, 5, 6, 0],
                ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
 
     # Achsen
@@ -44,10 +44,9 @@ def style_plot(commits_num: int):
 
 def create_git_scatter(folder: str):
     logger.debug(f"creating scatter of {folder}")
-    git_log = ["git", "-C", folder, "log", "--pretty=format:%h|%an|%ad|%s", "--date=format-local:%Y-%m-%d %H:%M:%S"]
+    git_log = ["git", "-C", folder, "log", "--pretty=format:%ad", "--date=format-local:%w %H"]
     process = Popen(git_log, stdout=PIPE, stderr=PIPE, text=True)
     out, err = process.communicate()
-
     log_entries = out.splitlines()
 
     commits_by_weekday_hour = {}
@@ -55,17 +54,9 @@ def create_git_scatter(folder: str):
 
     for entry in log_entries:
         logger.debug(f"reading entry: {entry}")
-        entry_components = entry.split('|')
-
-        commit_hash, author_name, commit_date_time, commit_message = entry_components
-
-        parsed_date = parser.parse(commit_date_time)
-        weekday = parsed_date.weekday()
-        hour = parsed_date.hour
-
-        key = (weekday, hour)
+        weekday, hour = entry.split()
+        key = (int(weekday), int(hour))
         commits_by_weekday_hour[key] = commits_by_weekday_hour.get(key, 0) + 10
-
         commits_num += 1
 
     weekdays, hours = zip(*commits_by_weekday_hour.keys())
@@ -73,6 +64,7 @@ def create_git_scatter(folder: str):
 
     plt.scatter(hours, weekdays, s=counts, c='blue', alpha=0.5)
     style_plot(commits_num)
+    # plt.savefig("statistik_hernandezperez.png", dpi=72)
     plt.show()
 
 

@@ -96,7 +96,6 @@ public class Node implements Comparable<Node>{
 
     @Override
     public int compareTo(Node n) {
-        // todo auch nach namen sortieren?
         return Integer.compare(this.distance, n.distance);
     }
 }

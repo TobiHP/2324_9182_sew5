@@ -16,12 +16,12 @@ public class Graph {
      * Sortierung: distance + Name der Node (zwei verschiedene Implentierungs-
      * Varianten möglich: in Node oder als Comperator)
      */
-    private PriorityQueue<Node> pq;
+    private final PriorityQueue<Node> pq;
 
     /**
      * Liste mit allen Knoten des Graphen
      */
-    private List<Node> nodes;
+    private final List<Node> nodes;
 
     public Graph() {
         this.pq = new PriorityQueue<>();
