@@ -66,7 +66,11 @@ public class Graph {
     private String getAllPaths() {
         StringBuilder allPaths = new StringBuilder();
         for (Node n : nodes) {
-            allPaths.append(n.getPath()).append("\n");
+            if (n.getPath().equals(n.getId())) {
+                allPaths.append(n.getPath()).append(": is start node\n");
+            } else {
+                allPaths.append(n.getPath()).append("\n");
+            }
         }
         return allPaths.toString();
     }
@@ -93,6 +97,11 @@ public class Graph {
         }
     }
 
+    @Override
+    public String toString() {
+        return getAllPaths();
+    }
+
     public static void main(String[] args) {
         Graph graph = new Graph();
 
@@ -100,8 +109,7 @@ public class Graph {
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
             graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
             graph.calcWithDijkstra("A");
-            graph.nodes.forEach(System.out::println);
-            System.out.println(graph.getAllPaths());
+            System.out.println(graph);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

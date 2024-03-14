@@ -49,7 +49,7 @@ public class Node implements Comparable<Node>{
      */
     public String getPath() {
         if (previous == this) return this.getId();
-        return previous.getPath() + " - " + this.getId();
+        return previous.getPath() + " --(" + distance + ")-> " + this.getId();
     }
 
     /**
