@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.PriorityQueue;
 
 /**
  * @author Tobias Hernandez Perez, 5CN
@@ -66,7 +69,7 @@ public class Graph {
     private String getAllPaths() {
         StringBuilder allPaths = new StringBuilder();
         for (Node n : nodes) {
-            if (n.getPath().equals(n.getId())) {
+            if (n.getDistance() == 0) {
                 allPaths.append(n.getPath()).append(": is start node\n");
             } else {
                 allPaths.append(n.getPath()).append("\n");
@@ -99,7 +102,18 @@ public class Graph {
 
     @Override
     public String toString() {
-        return getAllPaths();
+        StringBuilder out = new StringBuilder();
+
+        nodes.forEach(n -> {
+            if (n.getDistance() == 0) {
+                out.append(n.getId()).append(" ----> is start node ");
+            } else {
+                out.append(n.getTotalDisplay());
+            }
+            out.append("\n");
+        });
+
+        return out.toString();
     }
 
     public static void main(String[] args) {
@@ -108,8 +122,11 @@ public class Graph {
         try {
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
             graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
-            graph.calcWithDijkstra("A");
-            System.out.println(graph);
+//            System.out.println(graph);
+//            System.out.println(graph.getAllPaths());
+            graph.calcWithDijkstra("D");
+//            System.out.println(graph);
+            System.out.println(graph.getAllPaths());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

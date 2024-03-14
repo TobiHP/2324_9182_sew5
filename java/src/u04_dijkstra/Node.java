@@ -6,7 +6,7 @@ import java.util.TreeSet;
 /**
  * @author Tobias Hernandez Perez, 5CN
  */
-public class Node implements Comparable<Node>{
+public class Node implements Comparable<Node> {
     private final String id;
     private TreeSet<Edge> edges;
     private int distance;
@@ -23,6 +23,14 @@ public class Node implements Comparable<Node>{
 
     public String getId() {
         return id;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public TreeSet<Edge> getEdges() {
+        return edges;
     }
 
     /**
@@ -45,15 +53,34 @@ public class Node implements Comparable<Node>{
 
     /**
      * Liefert den String mit einer Pfad-Darstellung vom Start-Knoten bis zu diesem
+     *
      * @return Pfad als String
      */
     public String getPath() {
-        if (previous == this) return this.getId();
+        if (previous == null) {
+            return "no path available for " + getTotalDisplay();
+        }
+        if (previous == this) return id;
         return previous.getPath() + " --(" + distance + ")-> " + this.getId();
     }
 
     /**
+     * Displays the current node in the following format
+     * <p></p>
+     * {id} [totalDistance: {distance}] {neighbors}
+     *
+     * @return
+     */
+    public String getTotalDisplay() {
+        StringBuilder out = new StringBuilder();
+        getEdges().forEach(e -> out.append(e).append(", "));
+        out.delete(out.length() - 2, out.length() - 1);
+        return id + " [totalDistance: " + (getDistance() == Integer.MAX_VALUE ? "?" : getDistance()) + "] " + out;
+    }
+
+    /**
      * Füegt dem Knoten einen Nachbarn hinzu
+     *
      * @param neighbor Nachbar-Node
      * @param distance Distanz zum Nachbarn
      */
@@ -64,9 +91,9 @@ public class Node implements Comparable<Node>{
 
     /**
      * → alle Nachbarn besuchen
-     *
-     *  kennt/braucht Interface IOfferDistance (=Teil von Graph)
-     *
+     * <p>
+     * kennt/braucht Interface IOfferDistance (=Teil von Graph)
+     * <p>
      * offerDistance(node2change, newPrevious, newDistance) –
      * (neu) eintragen in PQ – dort: Wann wird eingetragen?
      */
