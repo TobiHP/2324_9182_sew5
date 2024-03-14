@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.PriorityQueue;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Tobias Hernandez Perez, 5CN
@@ -43,13 +41,23 @@ public class Graph {
     private void readGraphFromAdjacencyMatrixFile(Path file) throws IOException {
         // todo exceptions
         List<String> allLines = Files.readAllLines(file);
+        if (allLines.get(0).split(";").length != allLines.size())
+            throw new IllegalArgumentException("The graph provided is invalid!");
         String[] nodeNames = allLines.get(0).substring(1).split(";", -1);
         for (String nodeName : nodeNames) {
             nodes.add(new Node(nodeName));
         }
+        AtomicInteger counter = new AtomicInteger();
         allLines.subList(1, allLines.size()).forEach(l -> {
             String[] split = l.split(";", -1);
-            Node curNode = nodes.stream().filter(n -> n.getId().equals(split[0])).findFirst().get();
+            if (split.length - 1 != nodeNames.length)
+                throw new IllegalArgumentException("The graph provided is invalid!");
+            if (!split[0].equals(nodeNames[counter.get()]))
+                throw new IllegalArgumentException("The graph provided is invalid!");
+            Optional<Node> optionalNode = nodes.stream().filter(n -> n.getId().equals(split[0])).findFirst();
+            if (optionalNode.isEmpty()) throw new IllegalArgumentException("The graph provided is invalid!");
+
+            Node curNode = optionalNode.get();
 
             for (int i = 1; i < split.length; i++) {
                 int index = i - 1;
@@ -58,6 +66,7 @@ public class Graph {
                     curNode.addEdge(neighbor.get(), Integer.parseInt(split[i]));
                 }
             }
+            counter.getAndIncrement();
         });
     }
 
@@ -120,11 +129,15 @@ public class Graph {
         Graph graph = new Graph();
 
         try {
-//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
-            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
+            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/kaputt_Graph_A-H_f.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/big.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/unzusammenhaengend_Graph_A-M.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_12_with_names.csv"));
 //            System.out.println(graph);
 //            System.out.println(graph.getAllPaths());
-            graph.calcWithDijkstra("D");
+            graph.calcWithDijkstra("A");
 //            System.out.println(graph);
             System.out.println(graph.getAllPaths());
         } catch (IOException e) {
