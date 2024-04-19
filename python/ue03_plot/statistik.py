@@ -10,6 +10,9 @@ logger = logging.getLogger("statistik_logger")
 
 
 def style_plot(commits_num: int):
+    """
+    Add custom styling to the plot
+    """
     logger.debug("styling plot")
     # Set labels and title
     plt.xlabel('hour')
@@ -43,6 +46,9 @@ def style_plot(commits_num: int):
 
 
 def create_git_scatter(folder: str):
+    """
+    Creates a scatter plot containing the number of commits per weekday & hour
+    """
     logger.debug(f"creating scatter of {folder}")
     git_log = ["git", "-C", folder, "log", "--pretty=format:%ad", "--date=format-local:%w %H"]
     process = Popen(git_log, stdout=PIPE, stderr=PIPE, text=True)

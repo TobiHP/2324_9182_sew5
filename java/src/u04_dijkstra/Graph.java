@@ -39,7 +39,6 @@ public class Graph {
      * @param file csv-Datei
      */
     private void readGraphFromAdjacencyMatrixFile(Path file) throws IOException {
-        // todo exceptions
         List<String> allLines = Files.readAllLines(file);
         if (allLines.get(0).split(";").length != allLines.size())
             throw new IllegalArgumentException("The graph provided is invalid!");
@@ -129,8 +128,8 @@ public class Graph {
         Graph graph = new Graph();
 
         try {
-            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
-//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
+//            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-M.csv"));
+            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/Graph_A-H.csv"));
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/kaputt_Graph_A-H_f.csv"));
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/big.csv"));
 //            graph.readGraphFromAdjacencyMatrixFile(Paths.get("res/dijkstra/unzusammenhaengend_Graph_A-M.csv"));

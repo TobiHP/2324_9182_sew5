@@ -35,7 +35,7 @@ plt.yticks([-1, 0, +1],
            [r'$-1$', r'$0$', r'$+1$'])
 
 # Legende
-plt.plot(x, y_cos, color="yellow", linewidth=2.5, linestyle="--", label="cosine")
+plt.plot(x, y_cos, color="purple", linewidth=2.5, linestyle="--", label="cosine")
 plt.plot(x, y_sin, color="cyan", linewidth=2.5, linestyle="--", label="sine")
 plt.legend(loc='upper left', frameon=False)
 
@@ -62,6 +62,10 @@ plt.annotate(r'$\cos(\frac{2\pi}{3})=-\frac{1}{2}$',
              xy=(t, math.cos(t)), xycoords='data',
              xytext=(-90, -50), textcoords='offset points', fontsize=16,
              arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=.2"))
+
+plt.plot([-PI / 4, -PI / 4], [0, math.cos(-PI / 4)], color='red', linewidth=2.5, linestyle="--")
+plt.plot([-PI / 4, -PI / 4], [0, math.sin(-PI / 4)], color='red', linewidth=2.5, linestyle="--")
+
 
 # Bessere Sichtbarkeit der Ticks
 for label in ax.get_xticklabels() + ax.get_yticklabels():

@@ -37,7 +37,6 @@ public class Node implements Comparable<Node> {
      * Initialisiert den Knoten, um den Dijkstra-Algorithumus neu zu starten
      */
     public void init() {
-        this.edges = new TreeSet<>(new EdgeComparator());
         this.distance = Integer.MAX_VALUE;
         this.previous = null;
         this.isVisited = false;
@@ -85,8 +84,7 @@ public class Node implements Comparable<Node> {
      * @param distance Distanz zum Nachbarn
      */
     public void addEdge(Node neighbor, int distance) {
-        Edge e = new Edge(neighbor, distance);
-        this.edges.add(e);
+        this.edges.add(new Edge(neighbor, distance));
     }
 
     /**
@@ -101,19 +99,17 @@ public class Node implements Comparable<Node> {
         if (isVisited) return;
         isVisited = true;
 
-        edges.stream()
-                .sorted(new EdgeComparator())
-                .forEach(e -> {
-                    Node neighbor = e.getNeighbor();
-                    if (!neighbor.equals(this.previous)) {
-                        int newDist = this.distance + e.getDistance();
-                        if (newDist < neighbor.distance) {
-                            neighbor.change(this, newDist);
-                            pq.remove(neighbor);
-                            pq.add(neighbor);
-                        }
-                    }
-                });
+        edges.forEach(e -> {
+            Node neighbor = e.getNeighbor();
+            if (!neighbor.equals(this.previous)) {
+                int newDist = this.distance + e.getDistance();
+                if (newDist < neighbor.distance) {
+                    pq.remove(neighbor);
+                    neighbor.change(this, newDist);
+                    pq.add(neighbor);
+                }
+            }
+        });
     }
 
     @Override
