@@ -84,7 +84,7 @@ public class PngSteganographie4pupil {
      * @param img das PNG-Bild
      */
     public static void writePngFile(String filename, BufferedImage img) throws IOException {
-        // TODO: ergänze den Code
+        ImageIO.write(img, "png", new File(filename));
     }
 
     /**
@@ -178,8 +178,8 @@ public class PngSteganographie4pupil {
     public static void setByteArray(BufferedImage img, byte[] info) {
         setByte(img, 0, (byte) info.length);
 
-        for (int i = 1; i < info.length; i++) {
-            setByte(img, i, info[i+1]);
+        for (int i = 2; i < info.length * 2 + 1; i+=2) {
+            setByte(img, i, info[i/2 - 1]);
         }
     }
 
@@ -195,8 +195,14 @@ public class PngSteganographie4pupil {
      * @return das versteckte Byte-Array
      */
     public static byte[] getByteArray(BufferedImage img) {
-        // TODO Code ergänzen
-        return new byte[0];
+        int length = getByte(img, 0);
+        byte[] bytes = new byte[length];
+
+        for (int i = 2; i < length * 2 + 1; i += 2) {
+            bytes[i/2 - 1] = getByte(img, i);
+        }
+
+        return bytes;
     }
 
     /**
@@ -207,8 +213,7 @@ public class PngSteganographie4pupil {
      * @throws IOException bei Lesefehlern
      */
     public static byte[] readSteganographieBytesFromPngFile(String filename) throws IOException {
-        // TODO Code ergänzen
-        return new byte[0];
+        return getByteArray(readPngFile(filename));
     }
 
     /**
@@ -221,24 +226,25 @@ public class PngSteganographie4pupil {
      */
     public static void writeSteganographieBytesToPngFile(
             String filename, BufferedImage img, byte info[]) throws IOException {
-        // TODO Code ergänzen
+        setByteArray(img, info);
+        writePngFile(filename, img);
     }
 
     public static void main(String[] args) throws IOException {
         // Testcode von BRE, ergänze/verändere ihn, wie du willst
         BufferedImage img = readPngFile("res/steganographie/img.png");
 
-        System.out.println("Pixel:      " + toBinString(img, 1, 2));
-        setByte(img, 1, (byte)254);
-        System.out.println("New Pixel:  " + toBinString(img, 1, 2));
-        System.out.println(getByte(img, 1)&255);
+//        System.out.println("Pixel:      " + toBinString(img, 1, 2));
+//        setByte(img, 1, (byte)254);
+//        System.out.println("New Pixel:  " + toBinString(img, 1, 2));
+//        System.out.println(getByte(img, 1)&255);
+//
+//        setByteArray(img, "abcd".getBytes(StandardCharsets.UTF_8));
+//        System.out.println(new String(getByteArray(img), StandardCharsets.UTF_8));
 
-        setByteArray(img, "abcd".getBytes(StandardCharsets.UTF_8));
-        System.out.println(new String(getByteArray(img), StandardCharsets.UTF_8));
+        writeSteganographieBytesToPngFile("res/steganographie/img2.geheim.png", img,
+                "Viel Erfolg bei der SEW-Matura!".getBytes(StandardCharsets.UTF_8));
 //
-//        writeSteganographieBytesToPngFile("resources/img.geheim.png", img,
-//                "Viel Erfolg bei der SEW-Matura!".getBytes(StandardCharsets.UTF_8));
-//
-//        System.out.println(new String(readSteganographieBytesFromPngFile("resources/img.geheim.png"), StandardCharsets.UTF_8));
+        System.out.println(new String(readSteganographieBytesFromPngFile("res/steganographie/img2.geheim.png"), StandardCharsets.UTF_8));
     }
 }
